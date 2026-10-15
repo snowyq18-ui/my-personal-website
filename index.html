@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#070b16">
+    <title>My Profile</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #070b16;
+            --card-background: rgba(12, 19, 36, 0.78);
+            --text-color: #eceff5;
+            --muted-color: #96b3ea;
+            --anime-color: #d8dee9;
+            --anime-glow: rgba(89, 97, 116, 0.767);
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text-color);
+            background: var(--background);
+            position: relative;
+            isolation: isolate;
+            overflow-x: hidden;
+        }
+
+        /* VIDEO BACKGROUND */
+        .background-video {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* DARK OVERLAY */
+        .background-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: rgba(3, 7, 18, 0.52);
+            pointer-events: none;
+        }
+
+        /* FALLING SNOW */
+        #snow {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* PROFILE CARD */
+        .card {
+            position: relative;
+            z-index: 2;
+            isolation: isolate;
+            width: 100%;
+            max-width: 360px;
+            padding: 32px 25px;
+            text-align: center;
+            background: var(--card-background);
+            border: 2px solid var(--anime-color);
+            border-radius: 22px;
+            box-shadow:
+                0 0 12px var(--anime-glow),
+                0 0 30px var(--anime-glow);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: appear 1s ease forwards;
+        }
+
+        /* AVATAR */
+        .avatar {
+            display: block;
+            width: 105px;
+            height: 105px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            border: 2px solid var(--anime-color);
+            object-fit: cover;
+            box-shadow: 0 0 18px var(--anime-glow);
+            transition: transform 0.3s ease;
+        }
+
+        .avatar:hover {
+            transform: scale(1.06);
+        }
+
+        /* NAME */
+        .name {
+            font-size: 27px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            overflow-wrap: anywhere;
+            text-shadow: 0 0 12px var(--anime-glow);
+        }
+
+        /* STATUS */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 16px;
+            padding: 6px 11px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: var(--muted-color);
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #8affb0;
+            box-shadow: 0 0 8px #8affb0;
+        }
+
+        /* BIO */
+        .bio {
+            color: var(--muted-color);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 23px;
+            overflow-wrap: anywhere;
+        }
+
+        /* SOCIAL ICONS */
+        .socials {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 13px;
+        }
+
+        .social {
+            width: 43px;
+            height: 43px;
+            display: flex;
+            flex-shrink: 0;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.13);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            text-decoration: none;
+            transition: 0.25s ease;
+        }
+
+        .social svg {
+            width: 19px;
+            height: 19px;
+            fill: currentColor;
+        }
+
+        .social:hover,
+        .social:focus-visible {
+            color: var(--anime-color);
+            border-color: var(--anime-color);
+            background: rgba(255, 255, 255, 0.09);
+            box-shadow: 0 0 15px var(--anime-glow);
+            transform: translateY(-4px);
+            outline: none;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 24px;
+            color: var(--muted-color);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        /* MUSIC BUTTON */
+        .music-toggle {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 20;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 11px 15px;
+            border: 1px solid var(--anime-color);
+            border-radius: 999px;
+            background: rgba(7, 11, 22, 0.9);
+            color: var(--text-color);
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 0 14px var(--anime-glow);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.2s ease;
+        }
+
+        .music-toggle:hover {
+            transform: translateY(-2px);
+        }
+
+        .music-toggle:focus-visible {
+            outline: 2px solid white;
+            outline-offset: 3px;
+        }
+
+        .music-icon {
+            font-size: 18px;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 420px) {
+            .card {
+                max-width: 330px;
+                padding: 28px 20px;
+            }
+
+            .name {
+                font-size: 24px;
+            }
+
+            .music-toggle {
+                right: 12px;
+                bottom: 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card {
+                animation: none;
+            }
+
+            .social,
+            .avatar,
+            .music-toggle {
+                transition: none;
+            }
+
+            .social:hover,
+            .music-toggle:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- VIDEO BACKGROUND -->
+    <video
+        class="background-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        aria-hidden="true"
+    >
+        <source src="c:\Users\harley\Downloads\Bg 3.mp4" type="video/mp4">
+    </video>
+
+    <div class="background-overlay" aria-hidden="true"></div>
+
+    <!-- SNOW -->
+    <canvas id="snow" aria-hidden="true"></canvas>
+
+    
+    <audio id="backgroundMusic" autoplay loop preload="auto">
+    <source src="c:\Users\harley\Downloads\MP3.mp3" type="audio/mpeg">
+</audio>
+
+    <button
+        class="music-toggle"
+        id="musicToggle"
+        type="button"
+        aria-pressed="false">
+
+        <span class="music-icon" aria-hidden="true">♫</span>
+        <span id="musicIcon" aria-hidden="true">▶</span>
+        <span id="musicLabel"> Play Music</span>
+        
+    </button>
+
+    <!-- PROFILE CARD -->
+    <main class="card">
+
+        
+        <img
+            class="avatar"
+            src="c:\Users\harley\Downloads\pfp on my webs.jpg"
+            alt="Profile picture">
+
+        <!-- MY NAME -->
+        <h1 class="name">Ian Harley</h1>
+
+        <!-- STATUS -->
+        <div class="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>Exploring the World is the Goal</span>
+        </div>
+
+        <!-- BIO -->
+        <p class="bio">
+            Just a guy who loves Music, Fitness, Hiking, and a Peaceful Life.
+            <br>
+            こんにちは
+        </p>
+
+        <!-- SOCIAL LINKS -->
+        <nav class="socials" aria-label="Social media">
+
+            <!-- DISCORD -->
+            <a
+                class="social"
+                href="https://discord.com/users/748095037824565359"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Discord"
+                title="Discord">
+
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19.73 5.33A19.7 19.7 0 0 0 14.87 3.8l-.6 1.22a18 18 0 0 0-4.54 0L9.13 3.8a19.7 19.7 0 0 0-4.86 1.53C1.2 9.85.37 14.27.78 18.63a19.8 19.8 0 0 0 5.96 3.02l1.28-2.08c-.7-.26-1.36-.59-1.99-.97l.49-.38c3.84 1.79 8 1.79 11.79 0l.5.38c-.64.38-1.3.71-2 .97l1.28 2.08a19.8 19.8 0 0 0 5.96-3.02c.48-5.05-.82-9.43-4.32-13.3ZM8.9 15.42c-1.15 0-2.09-1.05-2.09-2.35s.92-2.35 2.09-2.35 2.1 1.06 2.09 2.35c0 1.3-.92 2.35-2.09 2.35Zm6.2 0c-1.15 0-2.09-1.05-2.09-2.35s.92-2.35 2.09-2.35 2.1 1.06 2.09 2.35c0 1.3-.92 2.35-2.09 2.35Z"/>
+                </svg>
+            </a>
+
+            <!-- INSTAGRAM -->
+            <a
+                class="social"
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                title="Instagram">
+
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.5-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z"/>
+                </svg>
+            </a>
+
+            <!-- TIKTOK -->
+            <a
+                class="social"
+                href="https://www.tiktok.com/@sn0wv34r_?is_from_webapp=1&sender_device=pc"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                title="TikTok">
+
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19.6 7.1a6.7 6.7 0 0 1-4.2-1.5v8.1a6.2 6.2 0 1 1-6.2-6.2c.4 0 .8 0 1.2.1v3.4a2.9 2.9 0 1 0 1.8 2.7V2h3.4c.2 2.4 1.7 4.4 4 5.1v3.5Z"/>
+                </svg>
+            </a>
+
+            <!-- FACEBOOK -->
+            <a
+                class="social"
+                href="https://www.facebook.com/me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                title="Facebook">
+
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.02 4.388 11.016 10.125 11.927v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.313 0 2.686.236 2.686.236v2.98h-1.513c-1.491 0-1.956.93-1.956 1.884v2.26h3.328l-.532 3.49h-2.796V24C19.612 23.09 24 18.093 24 12.073Z"/>
+                </svg>
+            </a>
+
+        </nav>
+
+        <div class="footer">Made By Snow❄</div>
+
+    </main>
+
+    <script>
+        /* ==================================
+           FALLING SNOW
+        ================================== */
+
+        const canvas = document.getElementById("snow");
+        const ctx = canvas.getContext("2d");
+
+        let flakes = [];
+        let width = 0;
+        let height = 0;
+        let animationId;
+
+        function resizeCanvas() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+            width = window.innerWidth;
+            height = window.innerHeight;
+
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            const count = Math.min(
+                130,
+                Math.max(35, Math.floor((width * height) / 8500))
+            );
+
+            flakes = Array.from({ length: count }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2 + 0.5,
+                speed: Math.random() * 0.8 + 0.3,
+                drift: Math.random() * 0.6 - 0.3,
+                opacity: Math.random() * 0.6 + 0.2
+            }));
+        }
+
+        function animateSnow() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (const flake of flakes) {
+                ctx.beginPath();
+                ctx.arc(
+                    flake.x,
+                    flake.y,
+                    flake.radius,
+                    0,
+                    Math.PI * 2
+                );
+
+                ctx.fillStyle =
+                    `rgba(230, 240, 255, ${flake.opacity})`;
+                ctx.fill();
+
+                flake.y += flake.speed;
+                flake.x += flake.drift;
+
+                if (flake.y > height + 5) {
+                    flake.y = -5;
+                    flake.x = Math.random() * width;
+                }
+
+                if (flake.x > width + 5) {
+                    flake.x = -5;
+                } else if (flake.x < -5) {
+                    flake.x = width + 5;
+                }
+            }
+
+            animationId = requestAnimationFrame(animateSnow);
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+
+        resizeCanvas();
+        animateSnow();
+
+        /* Pause snow when the page is hidden */
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                cancelAnimationFrame(animationId);
+            } else {
+                cancelAnimationFrame(animationId);
+                animateSnow();
+            }
+        });
+
+        /* ==================================
+           MUSIC PLAY / PAUSE
+    ================================== */
+
+    const music = document.getElementById("backgroundMusic");
+    const musicToggle = document.getElementById("musicToggle");
+    const musicLabel = document.getElementById("musicLabel");
+    const musicIcon = document.getElementById("musicIcon");
+
+    function updateMusicButton() {
+        if (music.paused || music.ended) {
+            musicIcon.textContent = "▶";
+            musicLabel.textContent = "Play Music";
+            musicToggle.setAttribute("aria-pressed", "false");
+        } else {
+            musicIcon.textContent = "⏸";
+            musicLabel.textContent = "Pause Music";
+            musicToggle.setAttribute("aria-pressed", "true");
+        }
+    }
+
+    /* Set music volume */
+    music.volume = 0.5;
+
+    /* Try to autoplay when the website opens */
+    music.play()
+        .then(() => {
+            updateMusicButton();
+        })
+        .catch(() => {
+            updateMusicButton();
+            console.log("Autoplay was blocked by the browser.");
+        });
+
+    /* Play or pause when the button is clicked */
+    musicToggle.addEventListener("click", async () => {
+        if (music.paused || music.ended) {
+            musicLabel.textContent = "Loading...";
+
+            try {
+                await music.play();
+                updateMusicButton();
+            } catch (error) {
+                updateMusicButton();
+                console.error("Music could not play. Check your MP3 file and its path.", error);
+            }
+        } else {
+            music.pause();
+            updateMusicButton();
+        }
+    });
+
+    /* Update icons whenever playback changes */
+    music.addEventListener("play", updateMusicButton);
+    music.addEventListener("pause", updateMusicButton);
+    music.addEventListener("ended", updateMusicButton);
+
+    /* Handle music loading errors */
+    music.addEventListener("error", () => {
+        musicLabel.textContent = "Music unavailable";
+        musicIcon.textContent = "▶";
+        musicToggle.setAttribute("aria-pressed", "false");
+
+        console.error("Could not load the music file.");
+    });
+
+    music.addEventListener("ended", updateMusicButton);
+</script>
+</body>
+</html>
